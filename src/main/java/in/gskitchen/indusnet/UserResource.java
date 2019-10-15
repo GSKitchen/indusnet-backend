@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
@@ -58,7 +60,13 @@ public class UserResource {
         otp.setOtp(newOtp);
         otp.setUser(savedUser);
         otpRepository.save(otp);
-        tools.sendOtpToEmail(savedUser.getEmail(), newOtp);
+        try {
+            tools.sendOtpToEmail(savedUser.getEmail(), newOtp);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedUser.getId()).toUri();
         return ResponseEntity.created(location).build();
     }
@@ -91,7 +99,13 @@ public class UserResource {
         otp.setUser(user);
         otp.setCreatedAt(new Date());
         otpRepository.save(otp);
-        tools.sendOtpToEmail(emailId, newOtp);
+        try {
+            tools.sendOtpToEmail(emailId, newOtp);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 
