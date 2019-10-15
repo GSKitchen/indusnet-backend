@@ -53,11 +53,12 @@ public class UserResource {
     @PostMapping("/users")
     public ResponseEntity<Object> createUser(@RequestBody User user){
         User savedUser = userRepository.save(user);
+        String newOtp = ExtraTools.generateOtp();
         Otp otp = new Otp();
-        otp.setOtp(ExtraTools.generateOtp());
+        otp.setOtp(newOtp);
         otp.setUser(savedUser);
         otpRepository.save(otp);
-        //tools.generateOtp(savedUser);
+        tools.sendOtpToEmail(savedUser.getEmail(), newOtp);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedUser.getId()).toUri();
         return ResponseEntity.created(location).build();
     }
@@ -65,8 +66,9 @@ public class UserResource {
     @PostMapping("/verify-email")
     public String verifyEmail(@RequestBody String userResponse){
         String[] userResp = userResponse.trim().split(",");
-        User user = userRepository.findByEmail(userResp[1]);
-        if(user.getId() < 0) throw new UserNotFoundException("emailId - " + userResp[1]);
+        Optional<User> userOptional = userRepository.findByEmail(userResp[1]);
+        User user = userOptional.get();
+        if(!userOptional.isPresent()) throw new UserNotFoundException("Email - " + userResp[1]);
         Otp otp = otpRepository.findByUser(user);
         if(otp.getOtp().equals(userResp[0])){
             user.setIsVerified((byte) 1);
@@ -80,15 +82,16 @@ public class UserResource {
 
     @GetMapping("/resend-code/{emailId}")
     public Boolean resendCode(@PathVariable String emailId){
-        User user = userRepository.findByEmail(emailId);
-        if(user.getId() < 0) throw new UserNotFoundException("emailId - " + emailId);
+        Optional<User> userOptional = userRepository.findByEmail(emailId);
+        User user = userOptional.get();
+        if(!userOptional.isPresent()) throw new UserNotFoundException("Email - " + emailId);
         Otp otp = otpRepository.findByUser(user);
         String newOtp = ExtraTools.generateOtp();
         otp.setOtp(newOtp);
         otp.setUser(user);
         otp.setCreatedAt(new Date());
         otpRepository.save(otp);
-        //tools.sendOtpToEmail(emailId, newOtp);
+        tools.sendOtpToEmail(emailId, newOtp);
         return true;
     }
 
@@ -114,5 +117,17 @@ public class UserResource {
     @GetMapping("/companies")
     public List<Company> companyList(){
         return companyRepository.findAll();
+    }
+
+    @PostMapping("/login")
+    public User loginUser(@RequestBody String emailAndPassword){
+        String[] userInfo = emailAndPassword.trim().split(",");
+        Optional<User> userOptional = userRepository.findByEmail(userInfo[0]);
+        User user = userOptional.get();
+        if(!userOptional.isPresent()) throw new UserNotFoundException("Email - " + userInfo[0]);
+        if(user.getPassword().equals(userInfo[1])){
+            return user;
+        }
+        return null;
     }
 }
