@@ -1,9 +1,13 @@
 package in.gskitchen.indusnet;
 
 import in.gskitchen.indusnet.exceptions.UserNotFoundException;
+import in.gskitchen.indusnet.model.Company;
 import in.gskitchen.indusnet.model.Otp;
+import in.gskitchen.indusnet.model.Signer;
 import in.gskitchen.indusnet.model.User;
+import in.gskitchen.indusnet.repository.CompanyRepository;
 import in.gskitchen.indusnet.repository.OtpRepository;
+import in.gskitchen.indusnet.repository.SignerRepository;
 import in.gskitchen.indusnet.repository.UserRepository;
 import in.gskitchen.indusnet.tools.ExtraTools;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +29,12 @@ public class UserResource {
 
     @Autowired
     private OtpRepository otpRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
+
+    @Autowired
+    private SignerRepository signerRepository;
 
     private ExtraTools tools = new ExtraTools();
 
@@ -82,8 +92,27 @@ public class UserResource {
         return true;
     }
 
-    @GetMapping("/otp-list")
-    public List<Otp> getOtpList(){
-        return otpRepository.findAll();
+    @PostMapping("/save-company/{id}")
+    public void createCompany(@PathVariable int id, @RequestBody Company company){
+        Optional<User> userOptional = userRepository.findById(id);
+        User user = userOptional.get();
+        if(!userOptional.isPresent()) throw new UserNotFoundException("id - " + id);
+        company.setUser(user);
+        companyRepository.save(company);
+    }
+
+    @PostMapping("/save-signer/{id}")
+    public User createSignerDetails(@PathVariable int id, @RequestBody Signer signer){
+        Optional<User> userOptional = userRepository.findById(id);
+        User user = userOptional.get();
+        if(!userOptional.isPresent()) throw new UserNotFoundException("id - " + id);
+        signer.setUser(user);
+        signerRepository.save(signer);
+        return user;
+    }
+
+    @GetMapping("/companies")
+    public List<Company> companyList(){
+        return companyRepository.findAll();
     }
 }
