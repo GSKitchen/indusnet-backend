@@ -46,7 +46,7 @@ public class Company {
 
 
     @Past
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date companyInco;
 
 

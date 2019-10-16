@@ -39,7 +39,7 @@ public class Signer {
     private String zip;
 
     @NotNull
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dob;
 
     @OneToOne(fetch = FetchType.LAZY)

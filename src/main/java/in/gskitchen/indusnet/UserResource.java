@@ -11,6 +11,7 @@ import in.gskitchen.indusnet.repository.OtpRepository;
 import in.gskitchen.indusnet.repository.SignerRepository;
 import in.gskitchen.indusnet.repository.UserRepository;
 import in.gskitchen.indusnet.tools.ExtraTools;
+import in.gskitchen.indusnet.tools.Login;
 import in.gskitchen.indusnet.tools.VerifyUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -123,27 +124,21 @@ public class UserResource {
     }
 
     @PostMapping("/save-signer/{email}")
-    public User createSignerDetails(@PathVariable String email, @RequestBody Signer signer){
+    public void createSignerDetails(@PathVariable String email, @RequestBody Signer signer){
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user = userOptional.get();
         if(!userOptional.isPresent()) throw new UserNotFoundException("email - " + email);
         signer.setUser(user);
         signerRepository.save(signer);
-        return user;
     }
 
-    @GetMapping("/companies")
-    public List<Company> companyList(){
-        return companyRepository.findAll();
-    }
 
     @PostMapping("/login")
-    public User loginUser(@RequestBody String emailAndPassword){
-        String[] userInfo = emailAndPassword.trim().split(",");
-        Optional<User> userOptional = userRepository.findByEmail(userInfo[0]);
+    public User loginUser(@RequestBody Login login){
+        Optional<User> userOptional = userRepository.findByEmail(login.getEmail());
         User user = userOptional.get();
-        if(!userOptional.isPresent()) throw new UserNotFoundException("Email - " + userInfo[0]);
-        if(user.getPassword().equals(userInfo[1])){
+        if(!userOptional.isPresent()) throw new UserNotFoundException("Email - " + login.getEmail());
+        if(user.getPassword().equals(login.getPassword())){
             return user;
         }
         return null;
