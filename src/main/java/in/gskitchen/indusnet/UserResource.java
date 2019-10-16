@@ -1,5 +1,6 @@
 package in.gskitchen.indusnet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import in.gskitchen.indusnet.exceptions.UserNotFoundException;
 import in.gskitchen.indusnet.model.Company;
 import in.gskitchen.indusnet.model.Otp;
@@ -10,6 +11,7 @@ import in.gskitchen.indusnet.repository.OtpRepository;
 import in.gskitchen.indusnet.repository.SignerRepository;
 import in.gskitchen.indusnet.repository.UserRepository;
 import in.gskitchen.indusnet.tools.ExtraTools;
+import in.gskitchen.indusnet.tools.VerifyUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -50,6 +53,7 @@ public class UserResource {
     public Optional<User> retrieveUser(@PathVariable int id){
         Optional<User> user = userRepository.findById(id);
         if(!user.isPresent()) throw new UserNotFoundException("id - " + id);
+
         return user;
     }
 
@@ -73,13 +77,12 @@ public class UserResource {
     }
 
     @PostMapping("/verify-email")
-    public String verifyEmail(@RequestBody String userResponse){
-        String[] userResp = userResponse.trim().split(",");
-        Optional<User> userOptional = userRepository.findByEmail(userResp[1]);
+    public String verifyEmail(@RequestBody VerifyUser verifyUser){
+        Optional<User> userOptional = userRepository.findByEmail(verifyUser.getEmail());
         User user = userOptional.get();
-        if(!userOptional.isPresent()) throw new UserNotFoundException("Email - " + userResp[1]);
+        if(!userOptional.isPresent()) throw new UserNotFoundException("Email - " + verifyUser.getEmail());
         Otp otp = otpRepository.findByUser(user);
-        if(otp.getOtp().equals(userResp[0])){
+        if(otp.getOtp().equals(verifyUser.getUserOtp())){
             user.setIsVerified((byte) 1);
             otpRepository.deleteById(otp.getId());
             userRepository.save(user);
@@ -110,20 +113,20 @@ public class UserResource {
         return true;
     }
 
-    @PostMapping("/save-company/{id}")
-    public void createCompany(@PathVariable int id, @RequestBody Company company){
-        Optional<User> userOptional = userRepository.findById(id);
+    @PostMapping("/save-company/{email}")
+    public void createCompany(@PathVariable String email, @RequestBody Company company){
+        Optional<User> userOptional = userRepository.findByEmail(email);
         User user = userOptional.get();
-        if(!userOptional.isPresent()) throw new UserNotFoundException("id - " + id);
+        if(!userOptional.isPresent()) throw new UserNotFoundException("email - " + email);
         company.setUser(user);
         companyRepository.save(company);
     }
 
-    @PostMapping("/save-signer/{id}")
-    public User createSignerDetails(@PathVariable int id, @RequestBody Signer signer){
-        Optional<User> userOptional = userRepository.findById(id);
+    @PostMapping("/save-signer/{email}")
+    public User createSignerDetails(@PathVariable String email, @RequestBody Signer signer){
+        Optional<User> userOptional = userRepository.findByEmail(email);
         User user = userOptional.get();
-        if(!userOptional.isPresent()) throw new UserNotFoundException("id - " + id);
+        if(!userOptional.isPresent()) throw new UserNotFoundException("email - " + email);
         signer.setUser(user);
         signerRepository.save(signer);
         return user;

@@ -26,13 +26,13 @@ public class Company {
     @NotNull
     private String companyStreet;
 
-    @NotNull
+
     private String companyCountry;
 
-    @NotNull
+
     private String companyState;
 
-    @NotNull
+
     private String companyCity;
 
     @NotNull
@@ -44,15 +44,15 @@ public class Company {
     @NotNull
     private String companyWeb;
 
-    @NotNull
+
     @Past
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date companyInco;
 
-    @NotNull
+
     private String companyIncoState;
 
-    @NotNull
+
     private String companyIncoCity;
 
     @NotNull
