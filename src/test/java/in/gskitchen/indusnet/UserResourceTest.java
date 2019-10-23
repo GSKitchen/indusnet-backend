@@ -12,14 +12,15 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Date;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -43,9 +44,10 @@ public class UserResourceTest {
     @MockBean
     private SignerRepository signerRepository;
 
-    User mockUser = new User(9955, "FirstN", "Lastn", "email@mail.com", "companame", "password", Byte.parseByte("1"), new Date());
+    User mockUser = new User(null, "fname", "lanme", "email@mail.com", "compName", "pasdfdfffssword", (byte) 0, null);
 
-    //String exampleJson = "{\"id\":\"63\",\"firstName\":\"Fistrrr\",\"lastName\":\"NameLast\",\"email\":\"sabbir.sio@gmail.com\",\"companyName\":\"companame\",\"password\":\"hahlll!123\",\"isVerified\":0,\"createdAt\":\"2019-10-16T09:33:33.000+0000\"}";
+    String exampleJson = "{\"firstName\":\"fname\",\"lastName\":\"lanme\",\"email\":\"email@mail.com\",\"companyName\":\"compName\",\"password\":\"pasdfdfffssword\",\"isVerified\":0}";
+
 
     @Test
     public void getUser() throws Exception{
@@ -56,8 +58,27 @@ public class UserResourceTest {
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
 
         System.out.println(result.getResponse());
-        String expected = "{id:63, firstName: fname, lastName: lanme, email: email@mail.com, companyName: compName, password: pass, isVerified: 1, createdAt: 2019-10-16T09:33:33.000+0000}";
+        String expected = "{firstName: fname, lastName: lanme, email: email@mail.com, companyName: compName, password: pasdfdfffssword, isVerified: 0}";
 
         JSONAssert.assertEquals(expected, result.getResponse().getContentAsString(), false);
+    }
+
+    @Test
+    public void createUserTest() throws Exception{
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(mockUser);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post("/users")
+                .with(user("admin").password("password"))
+                .accept(MediaType.APPLICATION_JSON)
+                .content(exampleJson)
+                .contentType(MediaType.APPLICATION_JSON);
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+        MockHttpServletResponse response = result.getResponse();
+
+        System.out.println("My resp:");
+        System.out.println(response.getStatus());
+
+        JSONAssert.assertEquals(String.valueOf(HttpStatus.CREATED.value()), String.valueOf(response.getStatus()), false);
     }
 }

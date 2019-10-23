@@ -77,7 +77,7 @@ public class ExtraTools {
         //Authorise and Session creation
         Session session = Session.getInstance(props, new javax.mail.Authenticator(){
             protected PasswordAuthentication getPasswordAuthentication(){
-                return new PasswordAuthentication("sabbira.shaikh@indusnet.co.in", "*******");
+                return new PasswordAuthentication("sabbira.shaikh@indusnet.co.in", "myINTpwd$");
             }
         });
 

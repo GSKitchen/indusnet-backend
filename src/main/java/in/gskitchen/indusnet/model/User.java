@@ -40,6 +40,16 @@ public class User {
         super();
     }
 
+    public User(@NotNull @Size(min = 3, message = "Fist Name should more than 3 characters") String firstName, @NotNull @Size(min = 3, message = "Last Name should more than 3 characters") String lastName, String email, @NotNull String companyName, @NotNull @Size(min = 6, message = "Password should be 6 characters") String password, Byte isVerified, Date createdAt) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.companyName = companyName;
+        this.password = password;
+        this.isVerified = isVerified;
+        this.createdAt = createdAt;
+    }
+
     public User(Integer id, String firstName, String lastName, String email, String companyName, String password, Byte isVerified, Date createdAt) {
         this.id = id;
         this.firstName = firstName;

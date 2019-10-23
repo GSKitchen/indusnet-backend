@@ -3,7 +3,7 @@
 This Spring Boot project to demonstrate simple REST API for Basic Registration process.
 There are several path you can access.
 
-you can check it here: http://indusnet.ap-south-1.elasticbeanstalk.com
+You can check it here: http://indusnet.ap-south-1.elasticbeanstalk.com
 
 POST - /users
 [param - User]
