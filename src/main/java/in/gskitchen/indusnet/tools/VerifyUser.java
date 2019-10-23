@@ -1,5 +1,8 @@
 package in.gskitchen.indusnet.tools;
 
+/**
+ * This class to receive Email and OTP from client side as JSON Obejct
+ */
 public class VerifyUser {
     private String userOtp;
     private String email;
