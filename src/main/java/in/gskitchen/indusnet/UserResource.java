@@ -214,7 +214,7 @@ public class UserResource {
     }
 
     @GetMapping("/users")
-    public List<User> userList(){
+    public List<User> usersList(){
         return userRepository.findAll();
     }
 }

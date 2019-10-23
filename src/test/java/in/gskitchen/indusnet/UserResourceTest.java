@@ -50,7 +50,7 @@ public class UserResourceTest {
 
 
     @Test
-    public void getUser() throws Exception{
+    public void getUserTest() throws Exception{
         Optional<User> userOptional = userRepository.findById(Mockito.anyInt());
         Mockito.when(userOptional).thenReturn(Optional.of(mockUser));
         RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/users/3").with(user("admin").password("password")).accept(MediaType.APPLICATION_JSON);
